@@ -74,6 +74,7 @@ require('./unit/shapes/Text-test.js');
 require('./unit/shapes/Blob-test.js');
 require('./unit/shapes/Ellipse-test.js');
 require('./unit/shapes/Polygon-test.js');
+require('./unit/shapes/PolyLine-test.js');
 require('./unit/shapes/Spline-test.js');
 require('./unit/shapes/Sprite-test.js');
 require('./unit/shapes/Wedge-test.js');

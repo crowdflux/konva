@@ -789,6 +789,22 @@ declare namespace Konva {
     points(points: number[]): this;
   }
 
+  interface PolyLineConfig extends ShapeConfig {
+      points: number[];
+      tension?: number;
+      closed?: boolean;
+  }
+
+  class PolyLine extends Shape {
+      constructor(LineConfig: LineConfig);
+      closed(): boolean;
+      closed(closed: boolean): this;
+      tension(): number;
+      tension(tension: number): this;
+      points(): number[];
+      points(points: number[]): this;
+  }
+
   interface ArrowConfig extends ShapeConfig {
     points: number[];
     tension?: number;

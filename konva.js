@@ -2,7 +2,7 @@
  * Konva JavaScript Framework v2.0.2
  * http://konvajs.github.io/
  * Licensed under the MIT
- * Date: Wed Mar 21 2018
+ * Date: Thu Mar 22 2018
  *
  * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
  * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -17713,6 +17713,361 @@
   Konva.Collection.mapMethods(Konva.RegularPolygon);
 })();
 
+(function() {
+    'use strict';
+    /**
+     * Line constructor.&nbsp; Lines are defined by an array of points and
+     *  a tension
+     * @constructor
+     * @memberof Konva
+     * @augments Konva.Shape
+     * @param {Object} config
+     * @param {Array} config.points Flat array of points coordinates. You should define them as [x1, y1, x2, y2, x3, y3].
+     * @param {Number} [config.tension] Higher values will result in a more curvy line.  A value of 0 will result in no interpolation.
+     *   The default is 0
+     * @param {Boolean} [config.closed] defines whether or not the line shape is closed, creating a polygon or blob
+     * @param {Boolean} [config.bezier] if no tension is provided but bezier=true, we draw the line as a bezier using the passed points
+     * @param {String} [config.fill] fill color
+     * @param {Image} [config.fillPatternImage] fill pattern image
+     * @param {Number} [config.fillPatternX]
+     * @param {Number} [config.fillPatternY]
+     * @param {Object} [config.fillPatternOffset] object with x and y component
+     * @param {Number} [config.fillPatternOffsetX] 
+     * @param {Number} [config.fillPatternOffsetY] 
+     * @param {Object} [config.fillPatternScale] object with x and y component
+     * @param {Number} [config.fillPatternScaleX]
+     * @param {Number} [config.fillPatternScaleY]
+     * @param {Number} [config.fillPatternRotation]
+     * @param {String} [config.fillPatternRepeat] can be "repeat", "repeat-x", "repeat-y", or "no-repeat".  The default is "no-repeat"
+     * @param {Object} [config.fillLinearGradientStartPoint] object with x and y component
+     * @param {Number} [config.fillLinearGradientStartPointX]
+     * @param {Number} [config.fillLinearGradientStartPointY]
+     * @param {Object} [config.fillLinearGradientEndPoint] object with x and y component
+     * @param {Number} [config.fillLinearGradientEndPointX]
+     * @param {Number} [config.fillLinearGradientEndPointY]
+     * @param {Array} [config.fillLinearGradientColorStops] array of color stops
+     * @param {Object} [config.fillRadialGradientStartPoint] object with x and y component
+     * @param {Number} [config.fillRadialGradientStartPointX]
+     * @param {Number} [config.fillRadialGradientStartPointY]
+     * @param {Object} [config.fillRadialGradientEndPoint] object with x and y component
+     * @param {Number} [config.fillRadialGradientEndPointX] 
+     * @param {Number} [config.fillRadialGradientEndPointY] 
+     * @param {Number} [config.fillRadialGradientStartRadius]
+     * @param {Number} [config.fillRadialGradientEndRadius]
+     * @param {Array} [config.fillRadialGradientColorStops] array of color stops
+     * @param {Boolean} [config.fillEnabled] flag which enables or disables the fill.  The default value is true
+     * @param {String} [config.fillPriority] can be color, linear-gradient, radial-graident, or pattern.  The default value is color.  The fillPriority property makes it really easy to toggle between different fill types.  For example, if you want to toggle between a fill color style and a fill pattern style, simply set the fill property and the fillPattern properties, and then use setFillPriority('color') to render the shape with a color fill, or use setFillPriority('pattern') to render the shape with the pattern fill configuration
+     * @param {String} [config.stroke] stroke color
+     * @param {Number} [config.strokeWidth] stroke width
+     * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
+     * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
+     * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
+     * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
+     *  is miter
+     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     *  is butt
+     * @param {String} [config.shadowColor]
+     * @param {Number} [config.shadowBlur]
+     * @param {Object} [config.shadowOffset] object with x and y component
+     * @param {Number} [config.shadowOffsetX]
+     * @param {Number} [config.shadowOffsetY]
+     * @param {Number} [config.shadowOpacity] shadow opacity.  Can be any real number
+     *  between 0 and 1
+     * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
+     * @param {Array} [config.dash]
+     * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+     * @param {Number} [config.x]
+     * @param {Number} [config.y]
+     * @param {Number} [config.width]
+     * @param {Number} [config.height]
+     * @param {Boolean} [config.visible]
+     * @param {Boolean} [config.listening] whether or not the node is listening for events
+     * @param {String} [config.id] unique id
+     * @param {String} [config.name] non-unique name
+     * @param {Number} [config.opacity] determines node opacity.  Can be any number between 0 and 1
+     * @param {Object} [config.scale] set scale
+     * @param {Number} [config.scaleX] set scale x
+     * @param {Number} [config.scaleY] set scale y
+     * @param {Number} [config.rotation] rotation in degrees
+     * @param {Object} [config.offset] offset from center point and rotation point
+     * @param {Number} [config.offsetX] set offset x
+     * @param {Number} [config.offsetY] set offset y
+     * @param {Boolean} [config.draggable] makes the node draggable.  When stages are draggable, you can drag and drop
+     *  the entire stage by dragging any portion of the stage
+     * @param {Number} [config.dragDistance]
+     * @param {Function} [config.dragBoundFunc]
+     * @example
+     * var line = new Konva.PolyLine({
+     *   x: 100,
+     *   y: 50,
+     *   points: [73, 70, 340, 23, 450, 60, 500, 20],
+     *   stroke: 'red',
+     *   tension: 1
+     * });
+     */
+    Konva.PolyLine = function(config) {
+      this.___init(config);
+    };
+  
+    Konva.PolyLine.prototype = {
+      ___init: function(config) {
+        // call super constructor
+        Konva.Shape.call(this, config);
+        this.className = 'Line';
+  
+        this.on(
+          'pointsChange.konva tensionChange.konva closedChange.konva bezierChange.konva',
+          function() {
+            this._clearCache('tensionPoints');
+          }
+        );
+  
+        this.sceneFunc(this._sceneFunc);
+      },
+      _sceneFunc: function(context) {
+        var points = this.getPoints(),
+          length = points.length,
+          tension = this.getTension(),
+          closed = this.getClosed(),
+          bezier = this.getBezier(),
+          tp,
+          len,
+          n;
+  
+        if (!length) {
+          return;
+        }
+  
+        context.beginPath();
+        context.moveTo(points[0], points[1]);
+  
+        // tension
+        if (tension !== 0 && length > 4) {
+          tp = this.getTensionPoints();
+          len = tp.length;
+          n = closed ? 0 : 4;
+  
+          if (!closed) {
+            context.quadraticCurveTo(tp[0], tp[1], tp[2], tp[3]);
+          }
+  
+          while (n < len - 2) {
+            context.bezierCurveTo(
+              tp[n++],
+              tp[n++],
+              tp[n++],
+              tp[n++],
+              tp[n++],
+              tp[n++]
+            );
+          }
+  
+          if (!closed) {
+            context.quadraticCurveTo(
+              tp[len - 2],
+              tp[len - 1],
+              points[length - 2],
+              points[length - 1]
+            );
+          }
+        } else if (bezier) {
+          // no tension but bezier
+          n = 2;
+  
+          while (n < length) {
+            context.bezierCurveTo(
+              points[n++],
+              points[n++],
+              points[n++],
+              points[n++],
+              points[n++],
+              points[n++]
+            );
+          }
+        } else {
+          // no tension
+          for (n = 2; n < length; n += 2) {
+            context.lineTo(points[n], points[n + 1]);
+          }
+        }
+  
+        // closed e.g. polygons and blobs
+        if (closed) {
+          context.closePath();
+          context.fillStrokeShape(this);
+        } else {
+          // open e.g. lines and splines
+          context.strokeShape(this);
+        }
+      },
+      getTensionPoints: function() {
+        return this._getCache('tensionPoints', this._getTensionPoints);
+      },
+      _getTensionPoints: function() {
+        if (this.getClosed()) {
+          return this._getTensionPointsClosed();
+        } else {
+          return Konva.Util._expandPoints(this.getPoints(), this.getTension());
+        }
+      },
+      _getTensionPointsClosed: function() {
+        var p = this.getPoints(),
+          len = p.length,
+          tension = this.getTension(),
+          util = Konva.Util,
+          firstControlPoints = util._getControlPoints(
+            p[len - 2],
+            p[len - 1],
+            p[0],
+            p[1],
+            p[2],
+            p[3],
+            tension
+          ),
+          lastControlPoints = util._getControlPoints(
+            p[len - 4],
+            p[len - 3],
+            p[len - 2],
+            p[len - 1],
+            p[0],
+            p[1],
+            tension
+          ),
+          middle = Konva.Util._expandPoints(p, tension),
+          tp = [firstControlPoints[2], firstControlPoints[3]]
+            .concat(middle)
+            .concat([
+              lastControlPoints[0],
+              lastControlPoints[1],
+              p[len - 2],
+              p[len - 1],
+              lastControlPoints[2],
+              lastControlPoints[3],
+              firstControlPoints[0],
+              firstControlPoints[1],
+              p[0],
+              p[1]
+            ]);
+  
+        return tp;
+      },
+      getWidth: function() {
+        return this.getSelfRect().width;
+      },
+      getHeight: function() {
+        return this.getSelfRect().height;
+      },
+      // overload size detection
+      getSelfRect: function() {
+        var points;
+        if (this.getTension() !== 0) {
+          points = this._getTensionPoints();
+        } else {
+          points = this.getPoints();
+        }
+        var minX = points[0];
+        var maxX = points[0];
+        var minY = points[1];
+        var maxY = points[1];
+        var x, y;
+        for (var i = 0; i < points.length / 2; i++) {
+          x = points[i * 2];
+          y = points[i * 2 + 1];
+          minX = Math.min(minX, x);
+          maxX = Math.max(maxX, x);
+          minY = Math.min(minY, y);
+          maxY = Math.max(maxY, y);
+        }
+        return {
+          x: Math.round(minX),
+          y: Math.round(minY),
+          width: Math.round(maxX - minX),
+          height: Math.round(maxY - minY)
+        };
+      }
+    };
+    Konva.Util.extend(Konva.PolyLine, Konva.Shape);
+  
+    // add getters setters
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'closed', false);
+  
+    /**
+     * get/set closed flag.  The default is false
+     * @name closed
+     * @method
+     * @memberof Konva.PolyLine.prototype
+     * @param {Boolean} closed
+     * @returns {Boolean}
+     * @example
+     * // get closed flag
+     * var closed = line.closed();
+     *
+     * // close the shape
+     * line.closed(true);
+     *
+     * // open the shape
+     * line.closed(false);
+     */
+  
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'bezier', false);
+  
+    /**
+     * get/set bezier flag.  The default is false
+     * @name bezier
+     * @method
+     * @memberof Konva.PolyLine.prototype
+     * @param {Boolean} bezier
+     * @returns {Boolean}
+     * @example
+     * // get whether the line is a bezier
+     * var isBezier = line.bezier();
+     *
+     * // set whether the line is a bezier
+     * line.bezier(true);
+     */
+  
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'tension', 0);
+  
+    /**
+     * get/set tension
+     * @name tension
+     * @method
+     * @memberof Konva.PolyLine.prototype
+     * @param {Number} Higher values will result in a more curvy line.  A value of 0 will result in no interpolation.
+     *   The default is 0
+     * @returns {Number}
+     * @example
+     * // get tension
+     * var tension = line.tension();
+     *
+     * // set tension
+     * line.tension(3);
+     */
+  
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'points', []);
+    /**
+     * get/set points array
+     * @name points
+     * @method
+     * @memberof Konva.PolyLine.prototype
+     * @param {Array} points
+     * @returns {Array}
+     * @example
+     * // get points
+     * var points = line.points();
+     *
+     * // set points
+     * line.points([10, 20, 30, 40, 50, 60]);
+     *
+     * // push a new point
+     * line.points(line.points().concat([70, 80]));
+     */
+  
+    Konva.Collection.mapMethods(Konva.PolyLine);
+  })();
+  
 (function() {
   'use strict';
   /**
