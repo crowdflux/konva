@@ -79,6 +79,7 @@ var sourceFiles = [
   'src/shapes/Path.js',
   'src/shapes/TextPath.js',
   'src/shapes/RegularPolygon.js',
+  'src/shapes/PolyLine.js',
   'src/shapes/Star.js',
   'src/shapes/Label.js',
   'src/shapes/Arrow.js',
