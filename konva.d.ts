@@ -796,7 +796,7 @@ declare namespace Konva {
   }
 
   class PolyLine extends Shape {
-      constructor(LineConfig: LineConfig);
+      constructor(LineConfig: PolyLineConfig);
       closed(): boolean;
       closed(closed: boolean): this;
       tension(): number;
