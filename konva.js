@@ -17815,7 +17815,7 @@
       ___init: function(config) {
         // call super constructor
         Konva.Shape.call(this, config);
-        this.className = 'Line';
+        this.className = 'PolyLine';
   
         this.on(
           'pointsChange.konva tensionChange.konva closedChange.konva bezierChange.konva',
@@ -17827,32 +17827,48 @@
         this.sceneFunc(this._sceneFunc);
       },
       _sceneFunc: function(context) {
+
         var points = this.getPoints(),
-          length = points.length,
+          closed = this.getClosed();
+        
+        this._renderLine(context, points);
+  
+        // closed e.g. polygons and blobs
+        if (closed) {
+          context.closePath();
+          context.fillStrokeShape(this);
+        } else {
+          // open e.g. lines and splines
+          context.strokeShape(this);
+        }
+      },
+
+      _renderLine: function(context, points) {
+        var length = points.length,
           tension = this.getTension(),
           closed = this.getClosed(),
           bezier = this.getBezier(),
           tp,
           len,
           n;
-  
+
         if (!length) {
           return;
         }
-  
+
         context.beginPath();
         context.moveTo(points[0], points[1]);
-  
+
         // tension
         if (tension !== 0 && length > 4) {
           tp = this.getTensionPoints();
           len = tp.length;
           n = closed ? 0 : 4;
-  
+
           if (!closed) {
             context.quadraticCurveTo(tp[0], tp[1], tp[2], tp[3]);
           }
-  
+
           while (n < len - 2) {
             context.bezierCurveTo(
               tp[n++],
@@ -17863,7 +17879,7 @@
               tp[n++]
             );
           }
-  
+
           if (!closed) {
             context.quadraticCurveTo(
               tp[len - 2],
@@ -17875,7 +17891,7 @@
         } else if (bezier) {
           // no tension but bezier
           n = 2;
-  
+
           while (n < length) {
             context.bezierCurveTo(
               points[n++],
@@ -17892,16 +17908,8 @@
             context.lineTo(points[n], points[n + 1]);
           }
         }
-  
-        // closed e.g. polygons and blobs
-        if (closed) {
-          context.closePath();
-          context.fillStrokeShape(this);
-        } else {
-          // open e.g. lines and splines
-          context.strokeShape(this);
-        }
       },
+
       getTensionPoints: function() {
         return this._getCache('tensionPoints', this._getTensionPoints);
       },
@@ -17953,6 +17961,7 @@
   
         return tp;
       },
+
       getWidth: function() {
         return this.getSelfRect().width;
       },
