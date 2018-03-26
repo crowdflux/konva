@@ -32,26 +32,36 @@
         // call super constructor
         Konva.Shape.call(this, config);
         this.className = 'PolyLine';
-  
+        this.setInteriors([])
         this.on(
           'pointsChange.konva tensionChange.konva closedChange.konva bezierChange.konva',
           function() {
             this._clearCache('tensionPoints');
           }
         );
-  
         this.sceneFunc(this._sceneFunc);
       },
       _sceneFunc: function(context) {
 
-        var points = this.getPoints(),
+        var exterior = this.getExterior(),
+          interiors = this.getInteriors(),
           closed = this.getClosed();
         
-        this._renderLine(context, points);
+        context.beginPath();
+        this._renderLine(context, exterior);
+        for (var i = 0; i < interiors.length; i++) {
+          this._renderLine(context, interiors[i]);
+          context.lineTo(interiors[i][0],interiors[i][1])
+          context.moveTo(exterior[exterior.length - 2], exterior[exterior.length - 1])
+        }
   
         // closed e.g. polygons and blobs
         if (closed) {
-          context.closePath();
+          if(interiors.length > 0) {
+            context.lineTo(exterior[0], exterior[1])
+          }else {
+            context.closePath();
+          }
           context.fillStrokeShape(this);
         } else {
           // open e.g. lines and splines
@@ -72,7 +82,6 @@
           return;
         }
 
-        context.beginPath();
         context.moveTo(points[0], points[1]);
 
         // tension
@@ -133,11 +142,23 @@
         if (this.getClosed()) {
           return this._getTensionPointsClosed();
         } else {
-          return Konva.Util._expandPoints(this.getPoints(), this.getTension());
+          return Konva.Util._expandPoints(this.getExterior(), this.getTension());
+        }
+      },
+      interior: function() {
+        var interiors = this.getInteriors();
+        if(arguments.length === 1) {
+          return interiors[arguments[0]];
+        }else if (arguments.length === 2) {
+          interiors[arguments[0]] = arguments[1];
+          this.setInteriors(interiors);
+          return this;
+        }else {
+          throw new Error('Unknown operation polyline');
         }
       },
       _getTensionPointsClosed: function() {
-        var p = this.getPoints(),
+        var p = this.getExterior(),
           len = p.length,
           tension = this.getTension(),
           util = Konva.Util,
@@ -190,7 +211,7 @@
         if (this.getTension() !== 0) {
           points = this._getTensionPoints();
         } else {
-          points = this.getPoints();
+          points = this.getExterior();
         }
         var minX = points[0];
         var maxX = points[0];
@@ -271,25 +292,42 @@
      * line.tension(3);
      */
   
-    Konva.Factory.addGetterSetter(Konva.PolyLine, 'points', []);
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'exterior', []);
     /**
-     * get/set points array
-     * @name points
+     * get/set exterior array
+     * @name exterior
      * @method
      * @memberof Konva.PolyLine.prototype
-     * @param {Array} points
+     * @param {Array} exterior
      * @returns {Array}
      * @example
-     * // get points
-     * var points = line.points();
+     * // get exterior points
+     * var exterior = line.exterior();
      *
-     * // set points
-     * line.points([10, 20, 30, 40, 50, 60]);
+     * // set exterior points
+     * line.exterior([10, 20, 30, 40, 50, 60]);
      *
-     * // push a new point
-     * line.points(line.points().concat([70, 80]));
+     * // push a new point to exterior
+     * line.exterior(line.exterior().concat([70, 80]));
      */
   
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'interiors', []);
+    /**
+     * get/set interior 2d array
+     * @name interior
+     * @method
+     * @memberof Konva.PolyLine.prototype
+     * @param {Array} interior
+     * @returns {Array}
+     * @example
+     * // get interior points
+     * var exterior = line.exterior();
+     *
+     * // set interior points
+     * line.interiors([[10, 20, 30, 40, 50, 60]]);
+     *
+     */
+
     Konva.Collection.mapMethods(Konva.PolyLine);
   })();
   
