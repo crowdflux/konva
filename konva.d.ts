@@ -790,7 +790,8 @@ declare namespace Konva {
   }
 
   interface PolyLineConfig extends ShapeConfig {
-      points: number[];
+      exterior: number[];
+      interiors?: number[][];
       tension?: number;
       closed?: boolean;
   }
@@ -801,8 +802,12 @@ declare namespace Konva {
       closed(closed: boolean): this;
       tension(): number;
       tension(tension: number): this;
-      points(): number[];
-      points(points: number[]): this;
+      exterior(): number[];
+      exterior(points: number[]): this;
+      interiors(): number[][];
+      interiors(pointsArray: number[][]): this;
+      interior(interiorIndex: number): number[];
+      interior(interiorIndex: number, points: number[]): this;
   }
 
   interface ArrowConfig extends ShapeConfig {
