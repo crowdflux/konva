@@ -2,7 +2,7 @@
  * Konva JavaScript Framework v2.0.2
  * http://konvajs.github.io/
  * Licensed under the MIT
- * Date: Mon Mar 26 2018
+ * Date: Tue Mar 27 2018
  *
  * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
  * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -17817,6 +17817,7 @@
         Konva.Shape.call(this, config);
         this.className = 'PolyLine';
         this.setInteriors([])
+        this.setInteriorsClock([])
         this.on(
           'pointsChange.konva tensionChange.konva closedChange.konva bezierChange.konva',
           function() {
@@ -17829,13 +17830,27 @@
 
         var exterior = this.getExterior(),
           interiors = this.getInteriors(),
-          closed = this.getClosed();
-        
+          closed = this.getClosed(),
+          interiorsClock = this.getInteriorsClock(),
+          exteriorClock = this.getExteriorClock();
+
         context.beginPath();
         this._renderLine(context, exterior);
         for (var i = 0; i < interiors.length; i++) {
-          this._renderLine(context, interiors[i]);
-          context.lineTo(interiors[i][0],interiors[i][1])
+          var interior = interiors[i];
+          if(exteriorClock !== interiorsClock[i]) {
+            this._renderLine(context, interior);
+            context.lineTo(interior[0],interior[1])
+          }else {
+            var reversedInterior = []
+            for(var j = 0; j < interior.length ; j += 2) {
+              reversedInterior[j] = interior[interior.length - 2 - j]
+              reversedInterior[j+1] = interior[interior.length - 1 - j]
+            }
+            this._renderLine(context, reversedInterior);
+            context.lineTo(reversedInterior[0],reversedInterior[1])
+          }
+          
           context.moveTo(exterior[exterior.length - 2], exterior[exterior.length - 1])
         }
   
@@ -17934,12 +17949,28 @@
         if(arguments.length === 1) {
           return interiors[arguments[0]];
         }else if (arguments.length === 2) {
+          
+          var interiorsClock = this.getInteriorsClock();
+          interiorsClock[arguments[0]] = isClockwise(arguments[1]);
           interiors[arguments[0]] = arguments[1];
           this.setInteriors(interiors);
+          this.setInteriorsClock(interiorsClock);
+
           return this;
         }else {
           throw new Error('Unknown operation polyline');
         }
+      },
+      interiorClock: function() {
+        var interiorsClock = this.getInteriorsClock();
+        if(arguments.length === 1) {
+          return interiorsClock[arguments[0]];
+        }else {
+          throw new Error('Unknown argument polyline')
+        }
+      },
+      exteriorClock: function() {
+        return this.getExteriorClock();
       },
       _getTensionPointsClosed: function() {
         var p = this.getExterior(),
@@ -18018,6 +18049,26 @@
         };
       }
     };
+
+    function isClockwise(points) {
+      var sum = 0;
+      for (var i = 0; i < points.length; i += 2) {
+        var i2 = getIndex(points, i + 2);
+        sum += (points[i2] - points[i]) * (points[i2 + 1] + points[i + 1]);
+      }
+      return sum <= 0; // Since Y axis is inverted
+    }
+
+    function getIndex(array, pos) {
+
+      if (pos >= array.length) {
+          return pos - array.length;
+      } else if (pos < 0) {
+          return array.length + pos;
+      }
+      return pos;
+    }
+
     Konva.Util.extend(Konva.PolyLine, Konva.Shape);
   
     // add getters setters
@@ -18075,8 +18126,14 @@
      * // set tension
      * line.tension(3);
      */
+
+    function calculateExteriorClock() {
+      this.setExteriorClock(isClockwise(this.getExterior()));
+    }
   
-    Konva.Factory.addGetterSetter(Konva.PolyLine, 'exterior', []);
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'exterior', [], undefined, calculateExteriorClock);
+
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'exteriorClock', true);
     /**
      * get/set exterior array
      * @name exterior
@@ -18094,8 +18151,9 @@
      * // push a new point to exterior
      * line.exterior(line.exterior().concat([70, 80]));
      */
-  
     Konva.Factory.addGetterSetter(Konva.PolyLine, 'interiors', []);
+
+    Konva.Factory.addGetterSetter(Konva.PolyLine, 'interiorsClock', []);
     /**
      * get/set interior 2d array
      * @name interior
