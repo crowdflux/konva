@@ -808,6 +808,9 @@ declare namespace Konva {
       interiors(pointsArray: number[][]): this;
       interior(interiorIndex: number): number[];
       interior(interiorIndex: number, points: number[]): this;
+      interiorClock(interiorIndex: number): boolean;
+      exteriorClock(): boolean;
+      interiorsClock(): boolean[];
   }
 
   interface ArrowConfig extends ShapeConfig {
