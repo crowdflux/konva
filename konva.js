@@ -8887,7 +8887,7 @@
    * shape.strokeHitEnabled();
    */
 
-  Konva.Factory.addGetterSetter(Konva.Shape, 'perfectDrawEnabled', true);
+  Konva.Factory.addGetterSetter(Konva.Shape, 'perfectDrawEnabled', false);
 
   /**
    * get/set perfectDrawEnabled. If a shape has fill, stroke and opacity you may set `perfectDrawEnabled` to false to improve performance.
